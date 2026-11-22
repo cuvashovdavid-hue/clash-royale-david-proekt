@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Гайд по сборке колоды Clash Royale</title>
+<style>
+  :root{
+    --bg:#0f1222; --panel:#181c30; --panel2:#1f2440; --line:#2c3357;
+    --text:#e8eaf6; --muted:#9aa0c3; --accent:#8b5cf6; --accent2:#c084fc;
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171; --pink:#f472b6;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.55;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 20px;}
+  header{background:linear-gradient(135deg,#1a1040 0%,#3b1e6e 55%,#6d28d9 100%); padding:56px 0 40px; text-align:center;}
+  header h1{font-size:2.2rem; margin-bottom:10px;}
+  header p{color:#d8d2f5; max-width:640px; margin:0 auto;}
+  nav{background:rgba(15,18,34,.92); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; backdrop-filter:blur(6px);}
+  nav .wrap{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; padding:10px 20px;}
+  nav a{color:var(--muted); text-decoration:none; font-size:.92rem; padding:6px 12px; border-radius:8px;}
+  nav a:hover{color:#fff; background:#262c4d;}
+  section{padding:52px 0;}
+  h2{font-size:1.6rem; margin-bottom:6px; color:#fff;}
+  .sub{color:var(--muted); margin-bottom:26px;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px;}
+  /* --- калькулятор --- */
+  .deck-row{display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 6px;}
+  .slot{width:66px; height:86px; border:2px dashed var(--line); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:.72rem; color:var(--muted); text-align:center; padding:4px; background:#141831;}
+  .slot.filled{border-style:solid; border-color:var(--accent); background:linear-gradient(160deg,#312a5e,#1d2140); color:#fff; cursor:pointer; position:relative;}
+  .slot .cost{font-weight:700; font-size:1rem; color:var(--accent2);}
+  .slot .rm{position:absolute; top:2px; right:5px; color:var(--muted); font-size:.8rem;}
+  .slot .rm:hover{color:var(--bad);}
+  .search{width:100%; max-width:420px; padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:#141831; color:var(--text); font-size:.95rem; margin-bottom:14px;}
+  .cards{display:flex; flex-wrap:wrap; gap:8px;}
+  .card{display:inline-flex; align-items:center; gap:7px; padding:7px 12px 7px 8px; border-radius:999px; background:var(--panel2); border:1px solid var(--line); cursor:pointer; font-size:.88rem; transition:.15s;}
+  .card:hover{border-color:var(--accent);}
+  .card.on{background:linear-gradient(120deg,#6d28d9,#8b5cf6); border-color:#a78bfa; color:#fff;}
+  .cc{width:22px; height:22px; border-radius:50%; background:#0e0b1e; color:var(--accent2); display:inline-flex; align-items:center; justify-content:center; font-size:.78rem; font-weight:700; flex:none;}
+  .card.on .cc{color:#fff;}
+  .card.spell{border-left:3px solid var(--pink);}
+  .card.build{border-left:3px solid var(--good);}
+  .card.champ{border-left:3px solid var(--warn);}
+  .tag{font-size:.62rem; color:var(--muted);}
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-top:22px;}
+  .stat{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:14px; text-align:center;}
+  .stat .v{font-size:1.7rem; font-weight:700;}
+  .stat .l{font-size:.8rem; color:var(--muted);}
+  .ok .v{color:var(--good);} .mid .v{color:var(--warn);} .no .v{color:var(--bad);}
+  .verdict{margin-top:20px; display:flex; flex-direction:column; gap:8px;}
+  .check{display:flex; gap:10px; align-items:flex-start; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; font-size:.92rem;}
+  .check b{color:#fff;}
+  .m-yes{color:var(--good);} .m-mid{color:var(--warn);} .m-no{color:var(--bad);}
+  /* --- правила --- */
+  .rules{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px;}
+  .rule{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
+  .rule h3{color:var(--accent2); margin-bottom:8px; font-size:1.05rem;}
+  .rule p{color:var(--muted); font-size:.93rem;}
+  .mistakes li{margin:10px 0 10px 18px; color:var(--muted);}
+  .mistakes b{color:#fff;}
+  /* --- мета-колоды --- */
+  .metagrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px;}
+  .mdeck{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px;}
+  .mdeck h3{font-size:1.02rem; color:#fff;}
+  .mdeck .meta-line{display:flex; justify-content:space-between; align-items:center; font-size:.8rem; color:var(--muted);}
+  .mdeck .avg{background:#312a5e; color:var(--accent2); padding:2px 10px; border-radius:999px; font-weight:700;}
+  .mdeck .cards2{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{font-size:.78rem; padding:4px 10px; border-radius:999px; background:var(--panel2); border:1px solid var(--line);}
+  .chip.w{border-color:var(--accent); color:var(--accent2);}
+  .mdeck p{font-size:.88rem; color:var(--muted);}
+  .loadbtn{align-self:flex-start; background:var(--accent); border:none; color:#fff; padding:8px 16px; border-radius:10px; cursor:pointer; font-size:.88rem;}
+  .loadbtn:hover{background:#7c3aed;}
+  footer{border-top:1px solid var(--line); padding:26px 0; color:var(--muted); font-size:.85rem; text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Гайд по сборке колоды в Clash Royale</h1>
+    <p>Проектный продукт: сайт-руководство по принципам сборки колоды из 8 карт — с калькулятором, проверкой колоды и актуальными сборками сезона.</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#calc">Анализатор колоды</a>
+    <a href="#rules">Правила сборки</a>
+    <a href="#mistakes">Типичные ошибки</a>
+    <a href="#meta">Актуальные колоды</a>
+  </div>
+</nav>
+
+<section id="calc">
+  <div class="wrap">
+    <h2>Анализатор колоды</h2>
+    <p class="sub">Выберите 8 карт — сайт посчитает среднюю стоимость эликсира, заклинания, здания, чемпионов и карты, способные атаковать воздушные юниты, и подскажет, что стоит исправить.</p>
+    <div class="panel">
+      <input class="search" id="search" type="text" placeholder="Поиск карты...">
+      <div class="deck-row" id="slots"></div>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:10px">Нажмите на карту, чтобы добавить или убрать её из колоды.</p>
+      <div class="cards" id="cards"></div>
+      <div class="stats" id="stats"></div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="wrap">
+    <h2>Правила сборки колоды</h2>
+    <p class="sub">Пять принципов, на которых строится любая сбалансированная колода.</p>
+    <div class="rules">
+      <div class="rule"><h3>1. Условие победы</h3><p>В колоде должна быть хотя бы одна карта, способная стабильно наносить урон башням: Всадник на кабане, Гигант, Шар, Кладбище, Арбалет и другие. Без неё колоде просто нечем выигрывать.</p></div>
+      <div class="rule"><h3>2. Средняя стоимость эликсира 3,0–4,0</h3><p>Слишком дешёвая колода слаба в защите, слишком дорогая не успевает отвечать на атаки противника. Считайте среднюю стоимость в калькуляторе выше.</p></div>
+      <div class="rule"><h3>3. Защита от воздуха</h3><p>Минимум 2 карты в колоде должны уметь атаковать воздушные юниты. Колода без противовоздушной защиты проигрывает первой же летающей атаке.</p></div>
+      <div class="rule"><h3>4. Баланс ролей</h3><p>У каждой карты — своя роль: атака, защита, поддержка или ускорение цикла. Две карты одинаковой роли — потерянный слот, оставьте более сильную из них.</p></div>
+      <div class="rule"><h3>5. Заклинания и здание</h3><p>1–2 заклинания для точечного воздействия и при желании одно здание для обороны. Слишком много заклинаний — нечем защищаться от войск.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="mistakes">
+  <div class="wrap">
+    <h2>Типичные ошибки при сборке</h2>
+    <div class="panel">
+      <ul class="mistakes">
+        <li><b>Нет условия победы.</b> Колода защищается, но не может добить башню — матч заканчивается вничью или поражением.</li>
+        <li><b>Нет карт по воздуху.</b> Самая частая ошибка новичков: против Адской гончей или Шара колоде нечего противопоставить.</li>
+        <li><b>Средний эликсир выше 4,5.</b> Пока вы копите эликсир, противник успевает разыграть три карты вместо одной.</li>
+        <li><b>Дубли ролей.</b> Две дорогие защиты или три заклинания одного назначения — колода «пустеет» там, где нужен другой тип карт.</li>
+        <li><b>Слепое копирование чужой колоды.</b> Готовые сборки рассчитаны на определённый уровень прокачки карт: у вас карты могут быть слабее, и колода работает иначе.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="meta">
+  <div class="wrap">
+    <h2>Актуальные колоды — ноябрь 2026</h2>
+    <p class="sub">Популярные сборки текущего сезона по статистике RoyaleAPI и RoyaleTracker. Кнопка «В калькулятор» загрузит колоду и покажет её анализ. Помните: мета меняется после каждого обновления баланса.</p>
+    <div class="metagrid" id="metagrid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Проектная работа. Данные о мета-колодах — по статистике RoyaleAPI и RoyaleTracker, сезон 89 (ноябрь 2026). Мета меняется после обновлений баланса.</div>
+</footer>
+
+<script>
+const CARDS = [
+ {n:"Рыцарь",c:3,t:"troop",a:0,ch:0,w:0},
+ {n:"Лучницы",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Валькирия",c:4,t:"troop",a:0,ch:0,w:0},
+ {n:"Мини П.Е.К.К.А.",c:4,t:"troop",a:0,ch:0,w:0},
+ {n:"П.Е.К.К.А.",c:7,t:"troop",a:0,ch:0,w:0},
+ {n:"Гигантский скелет",c:6,t:"troop",a:0,ch:0,w:0},
+ {n:"Мегарыцарь",c:7,t:"troop",a:0,ch:0,w:0},
+ {n:"Гигант",c:5,t:"troop",a:0,ch:0,w:1},
+ {n:"Королевский гигант",c:6,t:"troop",a:0,ch:0,w:1},
+ {n:"Электрогигант",c:7,t:"troop",a:0,ch:0,w:1},
+ {n:"Голем",c:8,t:"troop",a:0,ch:0,w:1},
+ {n:"Ледяной голем",c:2,t:"troop",a:0,ch:0,w:0},
+ {n:"Адская гончая",c:7,t:"troop",a:1,ch:0,w:1},
+ {n:"Шар",c:5,t:"troop",a:0,ch:0,w:1},
+ {n:"Мушкетёр",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Маг",c:5,t:"troop",a:1,ch:0,w:0},
+ {n:"Ведьма",c:5,t:"troop",a:1,ch:0,w:0},
+ {n:"Ночная ведьма",c:4,t:"troop",a:0,ch:0,w:0},
+ {n:"Малыш дракончик",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Адский дракон",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Феникс",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Миньоны",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Орда миньонов",c:5,t:"troop",a:1,ch:0,w:0},
+ {n:"Мега-миньон",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Летучие мыши",c:2,t:"troop",a:1,ch:0,w:0},
+ {n:"Скелеты",c:1,t:"troop",a:0,ch:0,w:0},
+ {n:"Армия скелетов",c:3,t:"troop",a:0,ch:0,w:0},
+ {n:"Гоблины",c:2,t:"troop",a:0,ch:0,w:0},
+ {n:"Гобо-копейщики",c:2,t:"troop",a:1,ch:0,w:0},
+ {n:"Гоблинская банда",c:3,t:"troop",a:0,ch:0,w:0},
+ {n:"Бандитка",c:3,t:"troop",a:0,ch:0,w:0},
+ {n:"Боевой таран",c:4,t:"troop",a:0,ch:0,w:1},
+ {n:"Всадник на кабане",c:4,t:"troop",a:0,ch:0,w:1},
+ {n:"Королевские кабаны",c:5,t:"troop",a:0,ch:0,w:1},
+ {n:"Шахтёр",c:3,t:"troop",a:0,ch:0,w:1},
+ {n:"Лесоруб",c:4,t:"troop",a:0,ch:0,w:0},
+ {n:"Охотник",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Вышибала",c:5,t:"troop",a:0,ch:0,w:0},
+ {n:"Зэпперы",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Петарда",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Принцесса",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Дротик-гоблин",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Электромаг",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Электродракон",c:5,t:"troop",a:1,ch:0,w:0},
+ {n:"Магический лучник",c:4,t:"troop",a:1,ch:0,w:0},
+ {n:"Пушка-повозка",c:5,t:"troop",a:0,ch:0,w:0},
+ {n:"Элитные варвары",c:6,t:"troop",a:0,ch:0,w:0},
+ {n:"Королевский призрак",c:3,t:"troop",a:1,ch:0,w:0},
+ {n:"Бомбардир",c:2,t:"troop",a:0,ch:0,w:0},
+ {n:"Искра",c:6,t:"troop",a:0,ch:0,w:1},
+ {n:"Ледяной дух",c:1,t:"troop",a:1,ch:0,w:0},
+ {n:"Электрический дух",c:1,t:"troop",a:1,ch:0,w:0},
+ {n:"Наездница на барьере",c:5,t:"troop",a:0,ch:0,w:1},
+ {n:"Огненный шар",c:4,t:"spell",a:1,ch:0,w:0},
+ {n:"Стрелы",c:3,t:"spell",a:1,ch:0,w:0},
+ {n:"Разряд",c:2,t:"spell",a:1,ch:0,w:0},
+ {n:"Бревно",c:2,t:"spell",a:0,ch:0,w:0},
+ {n:"Бочка с варварами",c:2,t:"spell",a:0,ch:0,w:0},
+ {n:"Молния",c:6,t:"spell",a:1,ch:0,w:0},
+ {n:"Отравление",c:4,t:"spell",a:1,ch:0,w:0},
+ {n:"Заморозка",c:4,t:"spell",a:1,ch:0,w:0},
+ {n:"Торнадо",c:3,t:"spell",a:1,ch:0,w:0},
+ {n:"Землетрясение",c:3,t:"spell",a:0,ch:0,w:0},
+ {n:"Кладбище",c:5,t:"spell",a:0,ch:0,w:1},
+ {n:"Гоблинская бочка",c:3,t:"spell",a:0,ch:0,w:1},
+ {n:"Королевская посылка",c:3,t:"spell",a:1,ch:0,w:0},
+ {n:"Гигантский снежок",c:2,t:"spell",a:1,ch:0,w:0},
+ {n:"Пушка",c:3,t:"building",a:0,ch:0,w:0},
+ {n:"Тесла",c:4,t:"building",a:1,ch:0,w:0},
+ {n:"Адская башня",c:5,t:"building",a:1,ch:0,w:0},
+ {n:"Надгробие",c:3,t:"building",a:0,ch:0,w:0},
+ {n:"Печь",c:4,t:"building",a:0,ch:0,w:0},
+ {n:"Мортира",c:4,t:"building",a:0,ch:0,w:1},
+ {n:"Арбалет",c:6,t:"building",a:0,ch:0,w:1},
+ {n:"Гоблинская бочка-бур",c:4,t:"building",a:0,ch:0,w:1},
+ {n:"Гоблинская клетка",c:4,t:"building",a:0,ch:0,w:0},
+ {n:"Сборщик эликсира",c:6,t:"building",a:0,ch:0,w:0},
+ {n:"Золотой рыцарь",c:4,t:"troop",a:0,ch:1,w:0},
+ {n:"Король скелетов",c:4,t:"troop",a:0,ch:1,w:0},
+ {n:"Королева-лучница",c:5,t:"troop",a:1,ch:1,w:0},
+ {n:"Могучий шахтёр",c:4,t:"troop",a:0,ch:1,w:0},
+ {n:"Монах",c:5,t:"troop",a:0,ch:1,w:0},
+ {n:"Маленький принц",c:3,t:"troop",a:1,ch:1,w:0},
+ {n:"Гоблинштейн",c:5,t:"troop",a:0,ch:1,w:0}
+];
+
+let deck = [];
+
+const typeNames = {troop:"войско", spell:"заклинание", building:"здание"};
+
+function byName(name){ return CARDS.find(c => c.n === name); }
+
+function renderSlots(){
+  const box = document.getElementById("slots");
+  box.innerHTML = "";
+  for(let i=0;i<8;i++){
+    const d = deck[i];
+    const s = document.createElement("div");
+    if(d){
+      s.className = "slot filled";
+      s.innerHTML = '<span class="cost">'+d.c+'</span>'+d.n+'<span class="rm" title="Убрать">✕</span>';
+      s.onclick = () => toggle(d.n);
+    } else {
+      s.className = "slot";
+      s.textContent = "пусто";
+    }
+    box.appendChild(s);
+  }
+}
+
+function toggle(name){
+  const i = deck.findIndex(c => c.n === name);
+  if(i >= 0) deck.splice(i,1);
+  else if(deck.length < 8) deck.push(byName(name));
+  render();
+}
+
+function render(){
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const box = document.getElementById("cards");
+  box.innerHTML = "";
+  CARDS.filter(c => c.n.toLowerCase().includes(q)).forEach(c => {
+    const el = document.createElement("div");
+    el.className = "card " + (c.t==="spell"?"spell":c.t==="building"?"build":"") + (c.ch?" champ":"") + (deck.some(d=>d.n===c.n)?" on":"");
+    el.innerHTML = '<span class="cc">'+c.c+'</span>'+c.n+(c.ch?' <span class="tag">чемпион</span>':'')+(c.w?' <span class="tag">условие победы</span>':'');
+    el.onclick = () => toggle(c.n);
+    box.appendChild(el);
+  });
+  analyze();
+}
+
+function analyze(){
+  const stats = document.getElementById("stats");
+  const verdict = document.getElementById("verdict");
+  const n = deck.length;
+  if(n === 0){
+    stats.innerHTML = "";
+    verdict.innerHTML = '<div class="check"><span class="m-mid">Выберите 8 карт, чтобы получить анализ колоды.</span></div>';
+    return;
+  }
+  const sum = deck.reduce((s,c)=>s+c.c,0);
+  const avg = sum/n;
+  const spells = deck.filter(c=>c.t==="spell").length;
+  const air = deck.filter(c=>c.a===1).length;
+  const builds = deck.filter(c=>c.t==="building").length;
+  const champs = deck.filter(c=>c.ch===1).length;
+  const hasW = deck.some(c=>c.w===1);
+
+  const avgCls = (avg>=3 && avg<=4) ? "ok" : (avg<3||avg<=4.5) ? "mid" : "no";
+  stats.innerHTML = `
+    <div class="stat ${avgCls}"><div class="v">${avg.toFixed(1)}</div><div class="l">средний эликсир</div></div>
+    <div class="stat"><div class="v">${sum}</div><div class="l">сумма эликсира</div></div>
+    <div class="stat"><div class="v">${spells}</div><div class="l">заклинания</div></div>
+    <div class="stat"><div class="v">${air}</div><div class="l">карты, бьющие воздух</div></div>
+    <div class="stat"><div class="v">${builds}</div><div class="l">здания</div></div>
+    <div class="stat"><div class="v">${champs}</div><div class="l">чемпионы</div></div>
+    <div class="stat"><div class="v">${n}/8</div><div class="l">заполнено карт</div></div>`;
+
+  const checks = [];
+  if(n < 8) checks.push('<div class="check"><span class="m-mid">▸</span><span>Добавьте ещё <b>'+(8-n)+'</b> карт(ы) — в колоде должно быть ровно 8.</span></div>');
+  // средний эликсир
+  if(avg>=3 && avg<=4) checks.push('<div class="check"><span class="m-yes">✓</span><span><b>Средний эликсир '+avg.toFixed(1)+' — оптимально.</b> Колода успевает и защищаться, и атаковать.</span></div>');
+  else if(avg<3) checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Средний эликсир '+avg.toFixed(1)+' — ниже нормы.</b> Колода быстрая, но войска могут не вывозить в защите. Замените пару дешёвых карт на 3–4 эликсира.</span></div>');
+  else if(avg<=4.5) checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Средний эликсир '+avg.toFixed(1)+' — чуть тяжеловато.</b> Допустимо, но против быстрых колод будет сложно. Можно заменить одну дорогую карту.</span></div>');
+  else checks.push('<div class="check"><span class="m-no">✕</span><span><b>Средний эликсир '+avg.toFixed(1)+' — слишком дорого.</b> Замените минимум одну карту 6+ эликсира на карту за 2–3.</span></div>');
+  // условие победы
+  if(hasW) checks.push('<div class="check"><span class="m-yes">✓</span><span><b>Условие победы есть.</b> Колода может давить на башни.</span></div>');
+  else checks.push('<div class="check"><span class="m-no">✕</span><span><b>Нет условия победы.</b> Добавьте карту-условие победы: Гигант, Всадник на кабане, Шар, Кладбище и т. п.</span></div>');
+  // воздух
+  if(air>=2) checks.push('<div class="check"><span class="m-yes">✓</span><span><b>Защита от воздуха в порядке.</b> Карт, бьющих по воздуху: '+air+'.</span></div>');
+  else checks.push('<div class="check"><span class="m-no">✕</span><span><b>Мало карт против воздуха ('+air+').</b> Нужно минимум 2: например, Мушкетёр, Малыш дракончик, Огненный шар.</span></div>');
+  // заклинания
+  if(spells>=1 && spells<=2) checks.push('<div class="check"><span class="m-yes">✓</span><span><b>Заклинаний '+spells+' — хорошо.</b> Есть чем зачищать мелкие войска и добивать башню.</span></div>');
+  else if(spells===0) checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Нет заклинаний.</b> Рекомендуется 1–2: Огненный шар, Разряд, Бревно или Стрелы.</span></div>');
+  else checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Заклинаний '+spells+' — многовато.</b> Оставьте 1–2 самых нужных, слоты займут войска.</span></div>');
+  // здания
+  if(builds===0) checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Зданий нет.</b> Это допустимо, но здание (Пушка, Тесла, Адская башня) помогает отвлекать танки.</span></div>');
+  else if(builds===1) checks.push('<div class="check"><span class="m-yes">✓</span><span><b>Одно здание — хороший баланс.</b> Надёжная защита от Хога, Гиганта и Шара.</span></div>');
+  else checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Зданий '+builds+' — многовато.</b> Обычно достаточно одного.</span></div>');
+  // чемпионы
+  if(champs===0) checks.push('<div class="check"><span class="m-mid">⚠</span><span><b>Чемпионов нет.</b> Не обязательно: сильная колода может обойтись и без них.</span></div>');
+  else if(champs===1) checks.push('<div class="check"><span class="m-yes">✓</span><span><b>Один чемпион — допустимо.</b> В колоде может быть не более одной карты-чемпиона.</span></div>');
+  else checks.push('<div class="check"><span class="m-no">✕</span><span><b>Чемпионов '+champs+' — так нельзя.</b> В колоду разрешается включать не более одного чемпиона.</span></div>');
+
+  const ok = n===8 && avg>=3 && avg<=4 && hasW && air>=2 && spells>=1 && spells<=2 && champs<=1 && builds<=2;
+  if(ok) checks.unshift('<div class="check"><span class="m-yes">🏆</span><span><b>Колода сбалансирована!</b> Все базовые критерии соблюдены — можно идти на арену.</span></div>');
+  verdict.innerHTML = checks.join("");
+}
+
+document.getElementById("search").addEventListener("input", render);
+
+const META = [
+ {name:"Хог 2.6", avg:"2,6", desc:"Самая популярная колода среди топ-игроков: быстрый цикл и постоянное давление Хогом на башню.", deck:["Всадник на кабане","Мушкетёр","Пушка","Ледяной голем","Скелеты","Ледяной дух","Огненный шар","Бревно"]},
+ {name:"Хог + Землетрясение", avg:"2,6", desc:"Землетрясение снимает здания противника, Петарда защищает от воздуха, Могучий шахтёр — сильный защитник.", deck:["Всадник на кабане","Петарда","Могучий шахтёр","Пушка","Скелеты","Электрический дух","Землетрясение","Бочка с варварами"]},
+ {name:"Мортира-бейт", avg:"3,6", desc:"Оборонительная колода: Мортира бьёт через всю арену, а бейт-карты вынуждают противника тратить заклинания.", deck:["Мортира","Бочка со скелетами","Гоблинская банда","Изгнанники","Пушка-повозка","Миньоны","Огненный шар","Бочка с варварами"]},
+ {name:"П.Е.К.К.А. бридж-спам", avg:"3,6", desc:"Агрессия с моста: П.Е.К.К.А. и Боевой таран выходят один за другим, пока противник отвечает на всё сразу.", deck:["П.Е.К.К.А.","Бандитка","Боевой таран","Королевский призрак","Электромаг","Мушкетёр","Разряд","Бревно"]},
+ {name:"Гигант + Кладбище", avg:"4,0", desc:"Классический танк с заклинанием-условием победы: Гигант идёт на башню, Кладбище добивает войска под его прикрытием.", deck:["Гигант","Кладбище","Ведьма","Миньоны","Зэпперы","Вышибала","Стрелы","Гигантский снежок"]},
+ {name:"Голем с Ночной ведьмой", avg:"4,1", desc:"Тяжёлая колода-беатдаун: один огромный пуши с Големом в двойной эликсир решает матч.", deck:["Голем","Ночная ведьма","Феникс","Бомбардир","Стрелы","Элитные варвары","Разряд","Мини П.Е.К.К.А."]}
+];
+
+const mg = document.getElementById("metagrid");
+META.forEach(m => {
+  const d = document.createElement("div");
+  d.className = "mdeck";
+  d.innerHTML = '<h3>'+m.name+'</h3><div class="meta-line"><span>вин-кондиции выделены фиолетовым</span><span class="avg">'+m.avg+' эл.</span></div>'+
+    '<div class="cards2">'+m.deck.map(n=>'<span class="chip'+(byName(n)&&byName(n).w?' w':'')+'">'+n+'</span>').join("")+'</div>'+
+    '<p>'+m.desc+'</p><button class="loadbtn">В калькулятор</button>';
+  d.querySelector(".loadbtn").onclick = () => { deck = m.deck.map(byName); render(); document.getElementById("calc").scrollIntoView({behavior:"smooth"}); };
+  mg.appendChild(d);
+});
+
+render();
+</script>
+</body>
+</html>
