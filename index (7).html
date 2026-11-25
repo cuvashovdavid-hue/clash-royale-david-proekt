@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Как составить колоду в Clash Royale</title>
+<style>
+:root{--purple:#3b1d5e;--purple2:#241040;--gold:#ffc93c;--elixir:#c04bf5;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Trebuchet MS',Verdana,sans-serif}
+body{background:linear-gradient(160deg,#241040 0%,#160a2b 60%,#0d0618 100%);color:#f0e8ff;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+h1{text-align:center;font-size:28px;color:var(--gold);text-shadow:0 2px 8px rgba(0,0,0,.6);margin:14px 0 4px}
+.sub{text-align:center;color:#c9b8ef;font-size:14px;margin-bottom:18px}
+h2{color:var(--gold);font-size:21px;margin:26px 0 10px;border-bottom:2px solid rgba(255,201,60,.35);padding-bottom:6px}
+h3{color:#ffd97a;font-size:16px;margin:12px 0 6px}
+.panel{background:rgba(59,29,94,.45);border:1px solid rgba(255,201,60,.25);border-radius:14px;padding:14px;margin-bottom:14px}
+.slotgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:560px;margin:0 auto}
+.slot{position:relative;aspect-ratio:3/4.1;border-radius:10px;border:2px solid rgba(255,255,255,.15);background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:.15s}
+.slot.empty::after{content:'+';font-size:34px;color:rgba(255,255,255,.25)}
+.slot:hover{border-color:var(--gold)}
+.slot.filled{cursor:default}
+.slot img{width:82%;object-fit:contain;pointer-events:none}
+.slot img{width:82%;object-fit:contain;pointer-events:none;position:relative;z-index:1}
+.slot .rm{position:absolute;top:2px;right:4px;background:rgba(200,30,30,.9);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;z-index:5}
+.slot .tag{position:absolute;bottom:3px;display:flex;gap:3px;z-index:5}
+.slot .tag button{font-size:9px;font-weight:bold;padding:2px 4px;border-radius:6px;border:1px solid #fff;cursor:pointer;color:#111}
+.slot .tag .ev{background:var(--gold);border-color:#7a5a00}
+.slot .tag .hr{background:#ff8a3c;border-color:#7a3a00}
+.slot.on-evo{box-shadow:0 0 12px 3px var(--gold);border-color:var(--gold)}
+.slot.on-hero{box-shadow:0 0 12px 3px #ff8a3c;border-color:#ff8a3c}
+.slot .cf{position:absolute;inset:0;border-radius:8px;pointer-events:none}
+.r0{border-color:#8ca6bf}.r1{border-color:#ff9d3c}.r2{border-color:#b45aff}
+.r3{border-color:transparent;background-image:linear-gradient(rgba(30,20,50,.9),rgba(30,20,50,.9)),linear-gradient(135deg,#ff5f6d,#ffc371,#7bed9f,#70a1ff,#e056fd);background-origin:border-box;background-clip:content-box,border-box}
+.r4{border-color:transparent;background-image:linear-gradient(rgba(40,25,10,.92),rgba(40,25,10,.92)),linear-gradient(135deg,#ffd76a,#fff3b0,#d4af37,#fff3b0,#ffd76a);background-origin:border-box;background-clip:content-box,border-box}
+.slot .nm{position:absolute;bottom:-2px;left:0;right:0;text-align:center;font-size:9px;background:rgba(0,0,0,.65);padding:1px 0;white-space:nowrap;overflow:hidden;z-index:3}
+.eli{position:absolute;top:2px;left:2px;width:20px;height:22px;background:var(--elixir);clip-path:polygon(50% 0,100% 30%,100% 75%,50% 100%,0 75%,0 30%);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;color:#fff;z-index:4;text-shadow:0 1px 2px #000}
+.eli1{width:16px;height:18px;font-size:10px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.stat{background:rgba(0,0,0,.3);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.stat .ok{color:#7bed9f}.stat .warn{color:#ff7b7b}.stat .mid{color:var(--gold)}
+.bar{height:10px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;background:var(--elixir)}
+.verdicts{margin-top:10px;font-size:13px;line-height:1.55}
+.verdicts .bad::before{content:'✕ ';color:#ff7b7b;font-weight:bold}
+.verdicts .good::before{content:'✓ ';color:#7bed9f;font-weight:bold}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.controls input,.controls select{background:#1c0f33;border:1px solid rgba(255,201,60,.4);color:#fff;border-radius:8px;padding:7px 10px;font-size:14px}
+.controls input{flex:1;min-width:160px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.card{position:relative;aspect-ratio:3/4.1;border-radius:10px;border:2px solid #8ca6bf;background:rgba(0,0,0,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:.12s;text-align:center}
+.card:hover{transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,.5);border-color:#fff}
+.card img{width:78%;object-fit:contain}
+.card .nm{font-size:9.5px;line-height:1.15;padding:2px;background:rgba(0,0,0,.55);position:absolute;bottom:0;left:0;right:0}
+.card .aiflag{position:absolute;top:26px;right:3px;font-size:10px;z-index:3}
+.card .evflag{position:absolute;top:2px;right:2px;font-size:8px;font-weight:bold;background:var(--gold);color:#111;padding:1px 4px;border-radius:5px}
+.card .hrflag{position:absolute;top:2px;right:30px;font-size:8px;font-weight:bold;background:#ff8a3c;color:#111;padding:1px 4px;border-radius:5px}
+.card.used{opacity:.28;pointer-events:none}
+.arenabtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}
+.abtn{background:linear-gradient(180deg,#4a2578,#2a1450);border:2px solid rgba(255,201,60,.45);color:#ffe9a8;border-radius:10px;padding:9px 6px;font-size:12.5px;cursor:pointer;transition:.12s}
+.abtn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.abtn.active{background:linear-gradient(180deg,#6b34b8,#3b1d5e);border-color:var(--gold);color:#fff}
+.dlist{margin-top:12px}
+.deckrow{background:rgba(0,0,0,.3);border:1px solid rgba(255,201,60,.2);border-radius:12px;padding:10px;margin-bottom:10px}
+.deckrow .top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;margin-bottom:8px}
+.deckrow .dname{font-weight:bold;color:#ffd97a;font-size:14px}
+.deckrow .dmeta{font-size:12px;color:#c9b8ef}
+.winbadge{background:rgba(60,180,100,.2);color:#7bed9f;border:1px solid #7bed9f;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:bold}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{width:54px;aspect-ratio:3/4;border-radius:7px;position:relative;overflow:hidden;border:1.5px solid #8ca6bf;background:rgba(0,0,0,.4)}
+.chip img{width:100%;height:82%;object-fit:cover;object-position:top}
+.chip .nm{position:absolute;bottom:0;left:0;right:0;font-size:7px;text-align:center;background:rgba(0,0,0,.7);padding:1px 0;white-space:nowrap;overflow:hidden}
+.chip.r1{border-color:#ff9d3c}.chip.r2{border-color:#b45aff}
+.chip.r3{border-color:#e056fd}.chip.r4{border-color:#ffd76a}
+.loadbtn{background:var(--gold);color:#3b1d0e;border:none;border-radius:8px;padding:6px 12px;font-weight:bold;cursor:pointer;font-size:12px}
+.loadbtn:hover{filter:brightness(1.1)}
+ul.rules li{margin:7px 0;line-height:1.5;font-size:14.5px}
+.errrow{display:flex;gap:10px;margin:8px 0;align-items:flex-start}
+.errrow .ic{font-size:20px}
+.errrow b{color:#ffd97a}
+footer{text-align:center;color:#8f7ab8;font-size:12px;padding:22px;margin-top:26px}
+@media(max-width:560px){.stats{grid-template-columns:1fr}.slotgrid{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>⚔️ Как составить колоду в Clash Royale</h1>
+<div class="sub">Правила сборки · типичные ошибки · калькулятор колоды · колоды для арен 1–32</div>
+
+<h2>🧱 Конструктор колоды</h2>
+<div class="panel">
+  <div class="slotgrid" id="deckgrid"></div>
+  <div class="verdicts" id="verdicts" style="max-width:560px;margin:12px auto 0"></div>
+</div>
+
+<div class="panel">
+  <div class="stats" id="stats"></div>
+</div>
+
+<h2>🃏 Коллекция карт (123)</h2>
+<div class="panel">
+  <div class="controls">
+    <input id="q" placeholder="Поиск карты..." oninput="renderCards()">
+    <select id="sort" onchange="renderCards()">
+      <option value="ea">Эликсир ↑ (дешёвые)</option>
+      <option value="ed">Эликсир ↓ (дорогие)</option>
+      <option value="ra">Редкость ↑ (обычные → чемпионы)</option>
+      <option value="rd">Редкость ↓ (чемпионы → обычные)</option>
+      <option value="az">По алфавиту</option>
+    </select>
+    <select id="fr" onchange="renderCards()">
+      <option value="-">Все редкости</option><option value="0">Обычные</option><option value="1">Редкие</option>
+      <option value="2">Эпические</option><option value="3">Легендарные</option><option value="4">Чемпионы</option>
+    </select>
+    <select id="ft" onchange="renderCards()">
+      <option value="-">Все типы</option><option value="0">Войска</option><option value="1">Здания</option><option value="2">Заклинания</option>
+    </select>
+  </div>
+  <div class="cards" id="cgrid"></div>
+</div>
+
+<h2>🏟️ Арены 1–32: лучшие колоды</h2>
+<div class="panel">
+  <div class="arenabtns" id="abtns"></div>
+  <div class="dlist" id="dlist"><p style="color:#c9b8ef">Выберите арену — покажу самые успешные колоды, доступные на этом этапе.</p></div>
+</div>
+
+<h2>📜 Правила сборки колоды</h2>
+<div class="panel">
+<ul class="rules">
+<li><b>Средняя стоимость эликсира — 2,5–3,5.</b> Считается как среднее арифметическое стоимостей восьми карт. Дешевле — колода «мелкая», не хватает силы; дороже — не успеваешь отвечать на атаки.</li>
+<li><b>Заклинания: 1–3.</b> Минимум одно (для добивания и обороны), четыре и больше — колода «пустая»: мало войск для атаки.</li>
+<li><b>Минимум 2 карты, бьющие по воздуху.</b> Воздушные атаки (Шар, Адская гончая) наказывают колоду без ПВО. Духи (ледяной, огненный, электрический, исцеления) тоже бьют по воздуху.</li>
+<li><b>Здания: 0–1.</b> Здание притягивает атаку к себе, но больше одного — колода медленная.</li>
+<li><b>Есть карта-условие победы.</b> Гигант, Всадник на кабане, Гоблинская бочка, Шар, Кладбище и др. — карта, которая в идеале доходит до башни.</li>
+<li><b>Особые карты: не больше 2.</b> Вместе можно взять 2 чемпионов, 2 героев или героя + чемпиона. Герой — особая версия обычной карты со способностью, открывается за 200 монет героя.</li>
+<li><b>Эволюции: не больше 2.</b> Усиленные версии карт активируются в бою; больше двух в колоду поставить нельзя.</li>
+</ul>
+</div>
+
+<h2>⚠️ Типичные ошибки</h2>
+<div class="panel">
+<ul class="rules">
+<li><b>Дорогая колода</b> — средний эликсир выше 3,5–4: противник разыгрывает карты втрое чаще.</li>
+<li><b>Нет ПВО</b> — Шар или Адская гончая сносит башню безнаказанно.</li>
+<li><b>Дублирование ролей</b> — 3–4 дорогих «танка» и ни одной дешёвой защиты, либо два условия победы без поддержки.</li>
+<li><b>Копирование колоды без понимания</b> — чужая колода работает только с её уровнем прокачки и скиллом.</li>
+<li><b>Игнорирование баланса ролей</b> — колода только из заклинаний или только из дешёвых карт не побеждает «толстые» атаки.</li>
+</ul>
+</div>
+
+<footer>Индивидуальный проект · Как составить колоду в Clash Royale · 2026</footer>
+</div>
+
+<script>
+const CARDS = [["Скелеты", "skeletons", 1, 0, 0, 0, 1, 0], ["Электрический дух", "electro-spirit", 1, 0, 0, 1, 0, 0], ["Огненный дух", "fire-spirit", 1, 0, 0, 1, 0, 0], ["Ледяной дух", "ice-spirit", 1, 0, 0, 1, 1, 0], ["Гоблины", "goblins", 2, 0, 0, 0, 0, 1], ["Гоблины-копейщики", "spear-goblins", 2, 0, 0, 1, 0, 0], ["Подрывник", "bomber", 2, 0, 0, 0, 1, 0], ["Летучие мыши", "bats", 2, 0, 0, 1, 1, 0], ["Разряд", "zap", 2, 0, 2, 1, 1, 0], ["Гигантский снежок", "giant-snowball", 2, 0, 2, 1, 1, 0], ["Берсеркша", "berserker", 2, 0, 0, 0, 0, 1], ["Лучницы", "archers", 3, 0, 0, 1, 1, 0], ["Стрелы", "arrows", 3, 0, 2, 1, 0, 0], ["Рыцарь", "knight", 3, 0, 0, 0, 1, 1], ["Миньоны", "minions", 3, 0, 0, 1, 0, 0], ["Пушка", "cannon", 3, 0, 1, 0, 1, 0], ["Банда гоблинов", "goblin-gang", 3, 0, 0, 1, 0, 0], ["Бочка со скелетами", "skeleton-barrel", 3, 0, 0, 0, 1, 0], ["Огненная лучница", "firecracker", 3, 0, 0, 1, 1, 0], ["Королевская почта", "royal-delivery", 3, 0, 2, 1, 0, 0], ["Костяные драконы", "skeleton-dragons", 4, 0, 0, 1, 0, 0], ["Мортира", "mortar", 4, 0, 1, 0, 1, 0], ["Тесла", "tesla", 4, 0, 1, 1, 1, 0], ["Варвары", "barbarians", 5, 0, 0, 0, 1, 0], ["Орда миньонов", "minion-horde", 5, 0, 0, 1, 1, 0], ["Разбойники", "rascals", 5, 0, 0, 1, 0, 0], ["Королевский гигант", "royal-giant", 6, 0, 0, 0, 1, 0], ["Элитные варвары", "elite-barbarians", 6, 0, 0, 0, 1, 0], ["Королевские рекруты", "royal-recruits", 7, 0, 0, 0, 1, 0], ["Дух исцеления", "heal-spirit", 1, 1, 0, 1, 0, 0], ["Ледяной голем", "ice-golem", 2, 1, 0, 0, 0, 1], ["Подозрительный куст", "suspicious-bush", 2, 1, 0, 0, 0, 0], ["Надгробие", "tombstone", 3, 1, 1, 0, 0, 1], ["Мегаминьон", "mega-minion", 3, 1, 0, 1, 0, 1], ["Гоблин с дротиками", "dart-goblin", 3, 1, 0, 1, 1, 0], ["Землетрясение", "earthquake", 3, 1, 2, 0, 0, 0], ["Эликсирный голем", "elixir-golem", 3, 1, 0, 0, 0, 0], ["Огненный шар", "fireball", 4, 1, 2, 1, 0, 0], ["Мини-П.Е.К.К.А.", "mini-pekka", 4, 1, 0, 0, 0, 1], ["Мушкетер", "musketeer", 4, 1, 0, 1, 1, 1], ["Клетка с гоблином", "goblin-cage", 4, 1, 1, 0, 1, 0], ["Хижина гоблинов", "goblin-hut", 4, 1, 1, 0, 0, 0], ["Валькирия", "valkyrie", 4, 1, 0, 0, 1, 1], ["Боевой таран", "battle-ram", 4, 1, 0, 0, 1, 0], ["Башня-бомбежка", "bomb-tower", 4, 1, 1, 0, 0, 0], ["Летучка", "flying-machine", 4, 1, 0, 1, 0, 0], ["Печь", "furnace", 4, 1, 1, 1, 1, 0], ["Мини-генераторы", "zappies", 4, 1, 0, 1, 0, 0], ["Гоблин-подрывник", "goblin-demolisher", 4, 1, 0, 0, 0, 0], ["Всадник на кабане", "hog-rider", 5, 1, 0, 0, 0, 0], ["Миньон-гигант", "minion-giant", 5, 1, 0, 1, 0, 0], ["Целительница-воин", "battle-healer", 5, 1, 0, 0, 0, 0], ["Гигант", "giant", 5, 1, 0, 0, 1, 1], ["Адская башня", "inferno-tower", 5, 1, 1, 1, 0, 0], ["Колдун", "wizard", 5, 1, 0, 1, 1, 1], ["Королевские кабаны", "royal-hogs", 5, 1, 0, 0, 1, 0], ["Сборщик эликсира", "elixir-collector", 6, 1, 1, 0, 0, 0], ["Ракета", "rocket", 6, 1, 2, 1, 0, 0], ["Хижина варваров", "barbarian-hut", 7, 1, 1, 1, 0, 0], ["Три мушкетера", "three-musketeers", 9, 1, 0, 1, 0, 0], ["Зеркало", "mirror", 2, 2, 2, 0, 1, 0], ["Варварская бочка", "barbarian-barrel", 2, 2, 2, 1, 0, 1], ["Стенобои", "wall-breakers", 2, 2, 0, 0, 1, 0], ["Ярость", "rage", 2, 2, 2, 0, 0, 0], ["Гоблинская бочка", "goblin-barrel", 3, 2, 2, 0, 1, 0], ["Проклятие гоблинов", "goblin-curse", 3, 2, 2, 1, 0, 0], ["Стражи", "guards", 3, 2, 0, 0, 0, 0], ["Армия скелетов", "skeleton-army", 3, 2, 0, 0, 1, 0], ["Лоза", "vines", 3, 2, 2, 0, 0, 0], ["Бездна", "void", 3, 2, 2, 1, 0, 0], ["Торнадо", "tornado", 3, 2, 2, 1, 0, 0], ["Клон", "clone", 4, 2, 2, 0, 0, 0], ["Дракончик", "baby-dragon", 4, 2, 0, 1, 1, 0], ["Темный принц", "dark-prince", 4, 2, 0, 0, 0, 1], ["Заморозка", "freeze", 4, 2, 2, 1, 0, 0], ["Яд", "poison", 4, 2, 2, 1, 0, 0], ["Рунический великан", "rune-giant", 4, 2, 0, 0, 0, 0], ["Охотник", "hunter", 4, 2, 0, 1, 1, 0], ["Гоблинский бур", "goblin-drill", 4, 2, 1, 0, 1, 0], ["Ведьма", "witch", 5, 2, 0, 1, 1, 0], ["Шар", "balloon", 5, 2, 0, 0, 0, 1], ["Принц", "prince", 5, 2, 0, 0, 0, 0], ["Электродракон", "electro-dragon", 5, 2, 0, 1, 1, 0], ["Вышибала", "bowler", 5, 2, 0, 0, 0, 1], ["Палач", "executioner", 5, 2, 0, 1, 1, 0], ["Повозка с пушкой", "cannon-cart", 5, 2, 0, 0, 0, 0], ["Гигантский скелет", "giant-skeleton", 6, 2, 0, 0, 0, 0], ["Молния", "lightning", 6, 2, 2, 1, 0, 0], ["Гоблин-гигант", "goblin-giant", 6, 2, 0, 0, 1, 0], ["Арбалет", "x-bow", 6, 2, 1, 1, 0, 0], ["П.Е.К.К.А.", "pekka", 7, 2, 0, 0, 1, 0], ["Электрогигант", "electro-giant", 7, 2, 0, 0, 1, 0], ["Голем", "golem", 8, 2, 0, 0, 0, 0], ["Бревно", "log", 2, 3, 2, 0, 0, 0], ["Шахтер", "miner", 3, 3, 0, 0, 0, 0], ["Принцесса", "princess", 3, 3, 0, 1, 1, 0], ["Ледяной колдун", "ice-wizard", 3, 3, 0, 1, 0, 1], ["Королевский призрак", "royal-ghost", 3, 3, 0, 0, 1, 0], ["Бандитка", "bandit", 3, 3, 0, 0, 0, 0], ["Рыбак", "fisherman", 3, 3, 0, 0, 0, 0], ["Громовержец", "electro-wizard", 4, 3, 0, 1, 0, 1], ["Пламенный дракон", "inferno-dragon", 4, 3, 0, 1, 1, 0], ["Феникс", "phoenix", 4, 3, 0, 1, 0, 0], ["Магический лучник", "magic-archer", 4, 3, 0, 1, 0, 1], ["Дровосек", "lumberjack", 4, 3, 0, 0, 1, 0], ["Ночная ведьма", "night-witch", 4, 3, 0, 0, 0, 0], ["Ведьмина бабушка", "mother-witch", 4, 3, 0, 0, 0, 0], ["Всадница на баране", "ram-rider", 5, 3, 0, 0, 0, 0], ["Кладбище", "graveyard", 5, 3, 2, 0, 0, 0], ["Ронин", "ronin", 5, 3, 0, 0, 0, 0], ["Гоблинская машина", "goblin-machine", 5, 3, 0, 0, 0, 0], ["Спарки", "sparky", 6, 3, 0, 0, 0, 0], ["Императрица духов", "spirit-empress", 3, 3, 0, 1, 0, 0], ["Мегарыцарь", "mega-knight", 7, 3, 0, 0, 1, 0], ["Адская гончая", "lava-hound", 7, 3, 0, 0, 0, 0], ["Золотой рыцарь", "golden-knight", 4, 4, 0, 0, 0, 0], ["Король скелетов", "skeleton-king", 4, 4, 0, 0, 0, 0], ["Шустрый шахтер", "mighty-miner", 4, 4, 0, 0, 0, 0], ["Королева лучниц", "archer-queen", 5, 4, 0, 1, 0, 0], ["Монах", "monk", 5, 4, 0, 0, 0, 0], ["Маленький принц", "little-prince", 3, 4, 0, 1, 0, 0], ["Гоблинштейн", "goblinstein", 5, 4, 0, 1, 0, 0], ["Главная бандитка", "boss-bandit", 6, 4, 0, 0, 0, 0]];
+const DECKS = [["Простая оборона", 1, 57, ["Рыцарь", "Лучницы", "Мушкетер", "Подрывник", "Скелеты", "Стрелы", "Огненный шар", "Пушка"]], ["Гигант-бандл", 1, 61, ["Гигант", "Рыцарь", "Мушкетер", "Мини-П.Е.К.К.А.", "Скелеты", "Стрелы", "Огненный шар", "Мортира"]], ["Мортира-рыцарь", 1, 58, ["Мортира", "Рыцарь", "Гоблины-копейщики", "Подрывник", "Скелеты", "Стрелы", "Огненный шар", "Гигант"]], ["Скелетный спам", 1, 55, ["Скелеты", "Гоблины", "Подрывник", "Лучницы", "Пушка", "Стрелы", "Огненный шар", "Рыцарь"]], ["Валькирия-Мушкетер", 3, 57, ["Валькирия", "Мушкетер", "Огненная лучница", "Скелеты", "Пушка", "Стрелы", "Огненный шар", "Гигант"]], ["Бочка-контроль", 4, 60, ["Гоблинская бочка", "Рыцарь", "Ледяной дух", "Скелеты", "Пушка", "Стрелы", "Огненный шар", "Мушкетер"]], ["Хог-лайт", 5, 59, ["Всадник на кабане", "Мушкетер", "Ледяной дух", "Скелеты", "Пушка", "Огненный шар", "Стрелы", "Мини-П.Е.К.К.А."]], ["ПЕККА-минор", 6, 58, ["П.Е.К.К.А.", "Мушкетер", "Пушка", "Ледяной дух", "Скелеты", "Огненный шар", "Стрелы", "Костяные драконы"]], ["РГ-битаун", 7, 62, ["Королевский гигант", "Колдун", "Мегаминьон", "Огненный шар", "Стрелы", "Скелеты", "Клетка с гоблином", "Королевская почта"]], ["Хог-Землетрясение", 8, 64, ["Всадник на кабане", "Землетрясение", "Мушкетер", "Пушка", "Ледяной дух", "Скелеты", "Огненный шар", "Ледяной голем"]], ["Мортира-бейт", 9, 63, ["Мортира", "Банда гоблинов", "Гоблинская бочка", "Рыцарь", "Ледяной дух", "Стрелы", "Ракета", "Костяные драконы"]], ["Электрогигант", 10, 61, ["Электрогигант", "Колдун", "Мегаминьон", "Разряд", "Огненный шар", "Тесла", "Скелеты", "Огненная лучница"]], ["Голем-битаун", 11, 63, ["Голем", "Ночная ведьма", "Дракончик", "Дровосек", "Молния", "Торнадо", "Варварская бочка", "Мегаминьон"]], ["Кладбище-контроль", 12, 65, ["Кладбище", "Ведьма", "Ледяной колдун", "Яд", "Торнадо", "Тесла", "Мегаминьон", "Костяные драконы"]], ["Шахтер-контроль", 13, 66, ["Шахтер", "Мушкетер", "Ледяной колдун", "Яд", "Тесла", "Ледяной дух", "Скелеты", "Огненный шар"]], ["Спарки-МК", 14, 62, ["Мегарыцарь", "Спарки", "Мегаминьон", "Колдун", "Разряд", "Огненный шар", "Летучие мыши", "Клетка с гоблином"]], ["Палач-Торнадо", 15, 60, ["Палач", "Торнадо", "Всадник на кабане", "Мушкетер", "Тесла", "Ледяной дух", "Разряд", "Огненный шар"]], ["ПЕККА-бридж-спам", 16, 67, ["П.Е.К.К.А.", "Бандитка", "Королевский призрак", "Боевой таран", "Громовержец", "Миньоны", "Разряд", "Яд"]], ["РГ-Рыбак", 17, 64, ["Королевский гигант", "Рыбак", "Колдун", "Молния", "Тесла", "Скелеты", "Разряд", "Гигантский снежок"]], ["Гоблин-гигант-битаун", 18, 63, ["Гоблин-гигант", "Дракончик", "Ночная ведьма", "Молния", "Стенобои", "Мегаминьон", "Ледяной голем", "Разряд"]], ["Хог 2.6", 19, 68, ["Всадник на кабане", "Мушкетер", "Ледяной дух", "Скелеты", "Пушка", "Огненный шар", "Бревно", "Ледяной голем"]], ["Лавалоун", 20, 66, ["Адская гончая", "Шар", "Молния", "Заморозка", "Дракончик", "Мегаминьон", "Ледяной дух", "Торнадо"]], ["Лоубейт", 21, 67, ["Гоблинская бочка", "Принцесса", "Банда гоблинов", "Рыцарь", "Ледяной дух", "Стрелы", "Ракета", "Бревно"]], ["МК-Рам", 22, 65, ["Мегарыцарь", "Всадница на баране", "Стенобои", "Летучие мыши", "Гоблины-копейщики", "Молния", "Огненный шар", "Ледяной голем"]], ["Гоблинштейн-Хог", 23, 64, ["Всадник на кабане", "Землетрясение", "Гоблинштейн", "Валькирия", "Банда гоблинов", "Бочка со скелетами", "Стрелы", "Огненный шар"]], ["ПЕККА-Электрогигант", 24, 66, ["П.Е.К.К.А.", "Электрогигант", "Бандитка", "Боевой таран", "Громовержец", "Молния", "Разряд", "Мегаминьон"]], ["РГ-Рыбак-эво", 25, 68, ["Королевский гигант", "Рыбак", "Громовержец", "Молния", "Скелеты", "Ледяной колдун", "Разряд", "Гигантский снежок"]], ["Лава-Кладбище", 26, 65, ["Адская гончая", "Кладбище", "Яд", "Торнадо", "Дракончик", "Мегаминьон", "Ледяной дух", "Молния"]], ["Ронин-Хог", 27, 67, ["Всадник на кабане", "Ронин", "Мушкетер", "Пушка", "Ледяной дух", "Скелеты", "Огненный шар", "Бревно"]], ["Кладбище-Гоблинштейн", 28, 66, ["Кладбище", "Гоблинштейн", "Ведьма", "Яд", "Торнадо", "Тесла", "Мегаминьон", "Ледяной дух"]], ["Рунический великан", 29, 67, ["Рунический великан", "Электрогигант", "Колдун", "Молния", "Тесла", "Мегаминьон", "Разряд", "Огненный шар"]], ["Босс-спам", 30, 69, ["Главная бандитка", "П.Е.К.К.А.", "Боевой таран", "Бандитка", "Громовержец", "Миньоны", "Разряд", "Яд"]], ["Императрица-Гоблин-гигант", 31, 68, ["Императрица духов", "Гоблин-гигант", "Дракончик", "Громовержец", "Молния", "Мегаминьон", "Ледяной голем", "Разряд"]], ["Императрица-Хог", 32, 70, ["Императрица духов", "Всадник на кабане", "Мушкетер", "Ледяной дух", "Скелеты", "Пушка", "Огненный шар", "Бревно"]]];
+const ARENAS = [[1, "Гоблинский стадион", 0], [2, "Костяная яма", 300], [3, "Варварская арена", 600], [4, "Долина чар", 1000], [5, "Мастерская строителя", 1300], [6, "Игровой домик П.Е.К.К.А.", 1600], [7, "Улица мушкетёров", 2000], [8, "Пик героев", 2300], [9, "Академия волшебства", 2600], [10, "Главное поле боя", 3000], [11, "Таверна маленького принца", 3400], [12, "Площадь духов", 3800], [13, "Шахта шахтёра", 4200], [14, "Зловещий город", 4600], [15, "Кухня палача", 5000], [16, "Королевский склеп", 5500], [17, "Сани Санты", 6000], [18, "Гоблинские шахты", 6500], [19, "Легендарная арена", 7000], [20, "Гора Всадника на кабане", 7500], [21, "Гоблинская арена", 8000], [22, "Легендарная арена 2", 8500], [23, "Суровые вершины", 9000], [24, "Королевский дворец", 9500], [25, "Лига чемпионов", 10000], [26, "Гора драконов", 10500], [27, "Бесконечная зима", 11000], [28, "Долина легенд", 11500], [29, "Трон гоблинской королевы", 12000], [30, "Огненные земли", 12500], [31, "Олимп героев", 13000], [32, "Трон королей", 13500]];
+const IMG_MIRRORS=[
+  k=>'https://royaleapi.github.io/cr-api-assets/cards-150/'+k+'.png',
+  k=>'https://cdn.jsdelivr.net/gh/RoyaleAPI/cr-api-assets@master/cards-150/'+k+'.png',
+  k=>'https://deckshop.pro/img/card/'+k.split('-').map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join('')+'.png'
+];
+function imgUrls(k){
+  const u=[];const ks=[k];
+  if(k==='log')ks.push('the-log');
+  if(k==='the-log')ks.push('log');
+  if(k.indexOf('-')>-1){ks.push(k.split('-').reverse().join('-'));ks.push(k.replace(/-/g,'_'));}
+  ks.forEach(kk=>IMG_MIRRORS.forEach(m=>u.push(m(kk))));
+  return u;
+}
+function imgTag(c){const u=imgUrls(c[1]);return '<img src="'+u[0]+'" data-alt="'+u.slice(1).join('|')+'" onerror="imgFail(this)" alt="'+c[0]+'">';}
+function imgFail(img){const a=(img.dataset.alt||'').split('|').filter(Boolean);if(a.length){img.dataset.alt=a.slice(1).join('|');img.src=a[0];return;}const p=img.parentElement;img.style.display='none';p.style.background='linear-gradient(160deg,#4a2578,#2a1450)';}
+const RN = ["Обычная","Редкая","Эпическая","Легендарная","Чемпион"];
+const TN = ["Войско","Здание","Заклинание"];
+const TIC = ["🗡️","🏰","✨"];
+const deck = new Array(8).fill(null); // {i, evo, hero}
+
+
+function avgOf(idxList){ return idxList.reduce((s,i)=>s+CARDS[i][2],0)/idxList.length; }
+
+function renderDeck(){
+  const g=document.getElementById('deckgrid'); g.innerHTML='';
+  const deckUsed = new Set(deck.filter(Boolean).map(e=>e.i));
+  for(let s=0;s<8;s++){
+    const e=deck[s]; const d=document.createElement('div');
+    if(!e){ d.className='slot empty'; d.onclick=()=>{document.getElementById('q').focus();window.scrollTo({top:document.getElementById('cgrid').offsetTop-60,behavior:'smooth'})}; }
+    else{
+      const c=CARDS[e.i]; d.className='slot filled'+(e.evo?' on-evo':'')+(e.hero?' on-hero':'')+' r'+c[3];
+      d.innerHTML=imgTag(c)
+        +'<div class="eli">'+c[2]+'</div><div class="cf"></div><div class="nm">'+c[0]+'</div>'
+        +'<button class="rm" title="Убрать">✕</button>'
+        +(c[6]?'<div class="tag"><button class="ev" onclick="tog('+s+',1)">ЭВО</button></div>':'')
+        +(c[7]?'<div class="tag" style="bottom:3px;right:3px"><button class="hr" onclick="tog('+s+',2)">ГЕРОЙ</button></div>':'');
+      d.querySelector('.rm').onclick=(ev)=>{ev.stopPropagation();deck[s]=null;renderDeck();};
+    }
+    g.appendChild(d);
+  }
+  renderStats();
+  renderCards();
+}
+
+function tog(s,kind){
+  const e=deck[s]; if(!e) return;
+  if(kind===1){
+    const on=!e.evo;
+    if(on && deck.filter(x=>x&&x.evo).length>=2){alert('В колоду можно включить не больше 2 эволюций!');return;}
+    e.evo=on;
+  } else {
+    const on=!e.hero;
+    if(on && deck.filter(x=>x&&(x.hero||CARDS[x.i][3]===4)).length>=2){alert('Особых карт (герои + чемпионы) — не больше 2: 2 героя, 2 чемпиона или герой + чемпион.');return;}
+    e.hero=on;
+  }
+  renderDeck();
+}
+
+function addCard(i){
+  if(deck.every(x=>x)){alert('Колода полная — 8 карт!');return;}
+  if(deck.some(x=>x&&x.i===i)){return;}
+  const s=deck.findIndex(x=>!x); deck[s]={i:i,evo:false,hero:false}; renderDeck();
+}
+
+function renderStats(){
+  const filled=deck.filter(Boolean);
+  const st=document.getElementById('stats');
+  if(filled.length===0){st.innerHTML='<div class="stat">Выберите 8 карт из коллекции ниже 👇</div>';document.getElementById('verdicts').innerHTML='';return;}
+  const idx=filled.map(e=>e.i);
+  const avg=avgOf(idx);
+  const spells=filled.filter(e=>CARDS[e.i][4]===2).length;
+  const air=filled.filter(e=>CARDS[e.i][5]===1).length;
+  const bld=filled.filter(e=>CARDS[e.i][4]===1).length;
+  const spec=filled.filter(e=>e.hero||CARDS[e.i][3]===4).length;
+  const evo=filled.filter(e=>e.evo).length;
+  const wc=CARDS.some((c,i)=>idx.includes(i)&&WC.has(c[0]));
+  const rows=[
+    ['Средний эликсир', avg.toFixed(2).replace('.',','), (avg>=2.5&&avg<=3.5)?'ok':'warn'],
+    ['Заклинания', spells, (spells>=1&&spells<=3)?'ok':'warn'],
+    ['Бьют по воздуху', air, air>=2?'ok':'warn'],
+    ['Здания', bld, bld<=1?'ok':'warn'],
+    ['Особые (чемпион+герой)', spec+'/2', spec<=2?'ok':'warn'],
+    ['Эволюции', evo+'/2', 'mid'],
+    ['Условие победы', wc?'✓':'✕', wc?'ok':'warn']
+  ];
+  st.innerHTML=rows.map(r=>'<div class="stat"><span>'+r[0]+'</span><span class="'+r[2]+'">'+r[1]+'</span></div>').join('');
+  const avgCls=v=>v?['good','bad']:['','bad'];
+  let v='';
+  v+=(avg>=2.5&&avg<=3.5?'<div class="good">Средняя стоимость эликсира в оптимальном диапазоне (2,5–3,5)</div>':'<div class="bad">Средний эликсир '+(avg<2.5?'слишком низкий — добавьте дорогую карту':'слишком высокий — замените дорогую карту на дешёвую')+'</div>');
+  v+=(spells>=1&&spells<=3?'<div class="good">Количество заклинаний в норме ('+spells+')</div>':(spells===0?'<div class="bad">Нет заклинаний — добавьте хотя бы одно</div>':'<div class="bad">Слишком много заклинаний ('+spells+') — мало войск для атаки</div>'));
+  v+=(air>=2?'<div class="good">ПВО в норме ('+air+' карт бьют по воздуху)</div>':'<div class="bad">Мало карт, бьющих по воздуху ('+air+') — воздушная атака накажет</div>');
+  v+=(bld<=1?'<div class="good">Здания: '+bld+' — нормально</div>':'<div class="bad">Слишком много зданий ('+bld+') — колода медленная</div>');
+  v+=(wc?'<div class="good">Условие победы на месте</div>':'<div class="bad">Нет условия победы — чем побеждать?</div>');
+  v+=(spec<=2?'<div class="good">Особые карты: '+spec+'/2</div>':'<div class="bad">Слишком много особых карт</div>');
+  v+=(evo>0?'<div class="good">Эволюции: '+evo+'/2</div>':'<div class="mid">Эволюции не включены — их можно включить кнопкой «ЭВО» на карте в слоте</div>');
+  const allOk=(avg>=2.5&&avg<=3.5)&&spells>=1&&spells<=3&&air>=2&&bld<=1&&wc&&spec<=2;
+  if(allOk&&filled.length===8) v+='<div style="text-align:center;font-size:16px;margin-top:8px">🏆 Колода сбалансирована!</div>';
+  document.getElementById('verdicts').innerHTML=v;
+}
+
+const WC=new Set(["Гигант","Королевский гигант","Всадник на кабане","Гоблинская бочка","Шар","Гоблин-гигант","Принц","Электрогигант","Голем","Кладбище","Гоблинский бур","Арбалет","Мортира","Спарки","Пламенный дракон","Королевские кабаны","Боевой таран","Стенобои","Адская гончая","Императрица духов","Гоблинская машина","Ронин","Рунический великан","Маленький принц"]);
+
+let curSort='ea',curFr='-',curFt='-';
+function renderCards(){
+  curSort=document.getElementById('sort').value;curFr=document.getElementById('fr').value;curFt=document.getElementById('ft').value;
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  const deckUsed=new Set(deck.filter(Boolean).map(e=>e.i));
+  let list=CARDS.map((c,i)=>({c,i}))
+    .filter(x=>(curFr==='-'||x.c[3]==+curFr)&&(curFt==='-'||x.c[4]==+curFt)&&(!q||x.c[0].toLowerCase().includes(q)));
+  const cmp={
+    ea:(a,b)=>a.c[2]-b.c[2]||a.c[0].localeCompare(b.c[0]),
+    ed:(a,b)=>b.c[2]-a.c[2]||a.c[0].localeCompare(b.c[0]),
+    ra:(a,b)=>a.c[3]-b.c[3]||a.c[2]-b.c[2],
+    rd:(a,b)=>b.c[3]-a.c[3]||b.c[2]-a.c[2],
+    az:(a,b)=>a.c[0].localeCompare(b.c[0])
+  }[curSort];
+  list.sort(cmp);
+  document.getElementById('cgrid').innerHTML=list.map(x=>{
+    const c=x.c;
+    return '<div class="card r'+c[3]+(deckUsed.has(x.i)?' used':'')+'" onclick="addCard('+x.i+')" title="'+RN[c[3]]+' · '+TN[c[4]]+(c[5]?' · бьёт по воздуху':'')+'">'
+      +'<div class="eli eli1">'+c[2]+'</div>'
+      +(c[6]?'<div class="evflag">ЭВО</div>':'')+(c[7]?'<div class="hrflag">ГЕРОЙ</div>':'')
+      +(c[5]?'<div class="aiflag">🕊️</div>':'')
+      +imgTag(c)+'<div class="nm">'+c[0]+'</div></div>';
+  }).join('');
+}
+
+let curArena=-1;
+function renderArenas(){
+  document.getElementById('abtns').innerHTML=ARENAS.map(a=>
+    '<button class="abtn'+(a[0]===curArena?' active':'')+'" onclick="pickArena('+a[0]+')">'+a[0]+'. '+a[1]+'<br><small>'+a[2]+'+</small></button>').join('');
+}
+function pickArena(n){
+  curArena=n;renderArenas();
+  const avail=DECKS.filter(d=>d[1]<=n).sort((a,b)=>b[2]-a[2]).slice(0,5);
+  const an=ARENAS.find(a=>a[0]===n);
+  document.getElementById('dlist').innerHTML='<h3>Арена '+n+' — '+an[1]+' ('+an[2]+'+ кубков)</h3>'
+    +'<p style="color:#c9b8ef;font-size:12.5px;margin-bottom:10px">Показаны 5 самых успешных колод, доступных на этой арене (по данным Deck Shop, победы — приближённые).</p>'
+    +avail.map((d,di)=>'<div class="deckrow"><div class="top"><span class="dname">'+d[0]+'</span>'
+      +'<span class="dmeta">средний эликсир '+avgOf(d[3].map(x=>nameIdx[x])).toFixed(2).replace('.',',')+'</span>'
+      +'<span class="winbadge">≈ '+d[2]+'% побед</span>'
+      +'<button class="loadbtn" onclick="loadDeck('+DECKS.indexOf(d)+')">Загрузить в конструктор</button></div>'
+      +'<div class="chips">'+d[3].map(x=>{const c=CARDS[nameIdx[x]];return '<div class="chip r'+c[3]+'">'+imgTag(c)+'<div class="nm">'+x+'</div></div>'}).join('')+'</div></div>').join('');
+}
+const nameIdx={};CARDS.forEach((c,i)=>nameIdx[c[0]]=i);
+function loadDeck(di){
+  const d=DECKS[di];
+  for(let s=0;s<8;s++) deck[s]={i:nameIdx[d[3][s]],evo:false,hero:false};
+  renderDeck();window.scrollTo({top:0,behavior:'smooth'});
+}
+renderDeck();renderCards();renderArenas();
+</script>
+</body>
+</html>
